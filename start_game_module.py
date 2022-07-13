@@ -3,20 +3,28 @@
 
 import time
 from typing import Counter
+from IJGeneralUsagePackage.hold_constants_paths import SLEEP_TIME_ZERO
+
 from hold_constants_paths import (
     SIMULATIONS, ROUNDS,
-    SLEEP_TIME_ZERO, SLEEP_TIME_1
+    SLEEP_TIME_ZERO,
+    BOARD_LENGHT
 )
 
-from utils.libs import (
-    print_log, show_info,
+from utils.lib_functions import (
+    show_info,
     define_player_number,
 )
 
-from game_manager.lib_manager import PalyerManager
-from ijfunctions import (
-    copy_libs
+from IJGeneralUsagePackage.ijfunctions import (
+    ij_smart_menu,
+    make_response,
+    make_sound, print_log
 )
+
+
+from game_manager.lib_manager import PalyerManager
+
 
 def run_game(round, player_number, player_game_over, property_board_list, all_player_info):
 
@@ -36,7 +44,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
         print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER {player_number}')
         return
 
-    board_lenght = 20
+    BOARD_LENGHT
     min_position = 1
 
     while True:
@@ -244,7 +252,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
         min_position = player.position
         player.position += 1
 
-        if player.position > board_lenght:
+        if player.position > BOARD_LENGHT:
             updated_balance = player.round_completed()
 
             try:
@@ -301,6 +309,7 @@ def calculate_winner(all_player_info):
 
 
 def control_run_game():
+
     winner_behavior = []
     simulation_counter = 1
 
@@ -371,7 +380,6 @@ def control_run_game():
 
 if __name__ == '__main__':
 
-    copy_libs()
 
     menu_options = {
         1: 'run game'
@@ -399,9 +407,8 @@ if __name__ == '__main__':
 
         user_action = menu_options.get(menu_response, 'REMOVE OPTIONS')
 
-        control_run_game(stakeholder=user_action)
+        control_run_game()
 
-        make_sound()
         END_TIME = time.time()
 
         total_run_time = END_TIME - SATART_TIME
@@ -411,9 +418,9 @@ if __name__ == '__main__':
         total_seconds =  str(total_run_time).split('.')[1]
 
         make_response(
-            total_minutes=total_minutes, total_seconds=total_seconds,fornecedor=user_action
+            total_minutes=total_minutes, total_seconds=total_seconds,source_data=user_action
         )
-        time.sleep(15)
 
+        make_sound()
         SATART_TIME = 0
         END_TIME = 0
