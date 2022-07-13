@@ -9,6 +9,12 @@ from IJGeneralUsagePackage.ijfunctions import (
 
 
 
+# ------------------------------------------------------------------
+#                     FUNCTIONS BEGIN HERE
+# ------------------------------------------------------------------
+
+
+
 def show_info(**kwarg):
 
     info = f"""
@@ -24,6 +30,8 @@ def show_info(**kwarg):
 
 def define_player_number():
     print_log(f'DEFINING THE PLAYER ORDER ...')
-    position = randint(1, 4)
 
-    return position
+    player_profile_number = randint(1, 4)
+    print_log(f'PLAYER PROFILE NUMBER IS --> {player_profile_number}')
+
+    return player_profile_number
