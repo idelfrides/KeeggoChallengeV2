@@ -1,50 +1,53 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import sys
 import time
 from typing import Counter
-from IJGeneralUsagePackage.hold_constants_paths import SLEEP_TIME_ZERO
 
 from hold_constants_paths import (
     SIMULATIONS, ROUNDS,
     SLEEP_TIME_ZERO,
-    BOARD_LENGHT
+    BOARD_LENGHT, SLEEP_TIME_ONE
 )
-
 from utils.lib_functions import (
     show_info,
     define_player_number,
 )
-
 from IJGeneralUsagePackage.ijfunctions import (
     ij_smart_menu,
     make_response,
     make_sound, print_log
 )
 
-
 from game_manager.lib_manager import PalyerManager
+
+
+# ------------------------------------------------------------------
+#                     RUN GAME FUNCTION BEGIN HERE
+# ------------------------------------------------------------------
 
 
 def run_game(round, player_number, player_game_over, property_board_list, all_player_info):
 
     player = PalyerManager(player=player_number)
+
     show_info(round=round, player=player.player)
 
-    print_log(f'{player.player} MUST WALK [{player.position}] POSITION')
+    print_log(f"{player.player} MUST WALK [{player.position}] position")
 
     try:
         balance = all_player_info[str(player_number)]['balance']
         if balance < 0:
             player_game_over.append(player_number)
     except Exception as excep:
+        print_log(f'EXCEPTION --> {excep}')
         pass
 
     if player_number in player_game_over:
         print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER {player_number}')
         return
 
-    BOARD_LENGHT
     min_position = 1
 
     while True:
@@ -313,9 +316,13 @@ def control_run_game():
     winner_behavior = []
     simulation_counter = 1
 
-    while simulation_counter < SIMULATIONS:
+    # import pdb; pdb.set_trace()
 
-        print_log(f'\n\n\n SIMULATION/PARTIDA --> {SIMULATIONS}\n\n\n')
+    # SIMULATIONS is the same as PARTIDAS
+
+    while simulation_counter <= SIMULATIONS:
+
+        print_log(f'\n\n\n SIMULATION/PARTIDA --> {SIMULATIONS} \n\n\n')
 
         player_game_over = []
         round_by_simulation = []
@@ -335,8 +342,8 @@ def control_run_game():
             run_game(round, player_number, player_game_over,
                 property_board_list, all_player_info)
 
-            player_number += 1  # next player
-            time.sleep(SLEEP_TIME_ZERO)
+            player_number += 1  # next  = NEXT ROUND
+            time.sleep(SLEEP_TIME_ONE)
 
         for key, value_ in all_player_info.items():
             players_dict_info[key] = value_
