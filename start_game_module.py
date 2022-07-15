@@ -6,9 +6,9 @@ import time
 
 from hold_constants_paths import (
     DEFAULT_BALANCE, SIMULATIONS,
-    ROUNDS, SLEEP_TIME_TWO,
+    ROUNDS,
     SLEEP_TIME_WALK, SLEEP_TIME_ZERO,
-    BOARD_LENGHT, SLEEP_TIME_ONE
+    BOARD_LENGHT,
 )
 from utils.lib_functions import (
     show_info,
@@ -520,6 +520,6 @@ if __name__ == '__main__':
         # )
 
         make_sound()
-        time.sleep(3) # convert_minutes_to_second(SLEEP_TIME_ONE))
+        time.sleep(convert_minutes_to_second(SLEEP_TIME_ZERO))
         SATART_TIME = 0
         END_TIME = 0

@@ -35,6 +35,10 @@ If you are using fish, write
 
      https://github.com/idelfrides/IJGeneralUsagePackage
 
-### 6 | After you read that repro setted up your workspace for this project, it's time play
+### 6 | After you read that repro and setted up your workspace, take a look to file hold_constants_paths.py and make some change if you want.
+
+     Access file  'hold_constants_paths.py'
+
+### 7 | After all that recomendations, now you are ready to get play, run folling command:
 
      python start_game_module.py

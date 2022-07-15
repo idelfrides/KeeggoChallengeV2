@@ -14,7 +14,6 @@ from  IJGeneralUsagePackage.ijfunctions import (
 
 from random import randint
 from hold_constants_paths import (
-    BOARD_LENGHT,
     MAX_LIMIT,
     SELL_VALUE,
     RENT_VALUE
