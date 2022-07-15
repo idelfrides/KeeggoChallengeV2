@@ -3,12 +3,12 @@
 
 import sys
 import time
+from IJGeneralUsagePackage.hold_constants_paths import SLEEP_TIME_ONE
 
 from hold_constants_paths import (
     DEFAULT_BALANCE, SIMULATIONS,
-    ROUNDS,
-    SLEEP_TIME_WALK, SLEEP_TIME_ZERO,
-    BOARD_LENGHT,
+    ROUNDS, BOARD_LENGHT,
+    SLEEP_TIME_WALK, SLEEP_TIME_ZERO
 )
 from utils.lib_functions import (
     show_info,
@@ -22,9 +22,9 @@ from IJGeneralUsagePackage.ijfunctions import (
 )
 from game_manager.lib_manager import (
     PalyerManager,
-    calculate_winner_v2,
     define_player_behavior,
     one_winner_per_simulation,
+    prepare_calculate_winner,
     show_game_over_winner,
     update_board
 )
@@ -341,7 +341,7 @@ def control_run_game():
         player_game_over = []
         all_player_info = {}
         winner_dict_info = {}
-        winner_dict_info_help = {}
+        winner_dict = {}
 
         property_board_list = ['SEM-DONO' for v in range(1, 21)]
 
@@ -374,8 +374,6 @@ def control_run_game():
                 current_balance=current_balance
             )
 
-            # print(f'\n\n\t\t PROPERTY_BOARD_LIST \n\n\t {property_board_list}')
-
             player_key = list(all_player_info.keys())
 
             if len(player_game_over) == 3 and player_key:
@@ -392,36 +390,41 @@ def control_run_game():
 
             time.sleep(convert_minutes_to_second(SLEEP_TIME_ZERO))
 
-            player_number += 1 # next  = NEXT ROUND
+            player_number += 1   # next player = NEXT ROUND
 
         # END for round in range(1, ROUNDS + 1):
 
         if game_over:
-            winner_dict = {}
-            winner_dict['code'] = player_key
+            winner_dict['code_'] = int(player_key)
             winner_dict['name'] = all_player_info[str(player_key)]['name']
-            winner_dict['balance'] = all_player_info[str(player_key)]['balance']
+            winner_dict['balance'] = (
+                all_player_info[str(player_key)]['balance']
+            )
             winner_dict['simulation'] = simulation_counter
+            winner_dict['game_over'] = game_over
+            winner_dict['round_'] = round
 
             show_game_over_winner(winner_dict)
-            # real_winner_bahavior_info.add(player_key)
             winner_dict_info[str(player_key)] = winner_dict
 
-            game_over = False
+            game_over_by_player_winner += 1
 
-            # break
-            # return
 
-        if not game_over:
+        if not game_over:   # and round == ROUNDS:
+
             if len(all_player_info) > 1:
                 all_player_info = one_winner_per_simulation(all_player_info)
 
             for number_, player_info in all_player_info.items():
-                winner_dict_info_help['name'] = player_info['name']
-                winner_dict_info_help['balance'] = player_info['balance']
-                winner_dict_info_help['simulation'] = simulation_counter
 
-                winner_dict_info[number_] = winner_dict_info_help
+                winner_dict['code_'] = int(number_)
+                winner_dict['name'] = player_info['name']
+                winner_dict['balance'] = player_info['balance']
+                winner_dict['simulation'] = simulation_counter
+                winner_dict['game_over'] = game_over
+                winner_dict['round_'] = round
+
+                winner_dict_info[number_] = winner_dict
 
             if round == ROUNDS:
                 game_over_by_time_out += 1
@@ -440,6 +443,8 @@ def control_run_game():
             game_over_by_player_winner
         )
 
+        hold_info_per_simulation_dict['game_over'] = game_over
+
         hold_info_per_simulation_list.append(hold_info_per_simulation_dict)
 
         simulation_counter += 1
@@ -447,7 +452,7 @@ def control_run_game():
     # END while simulation_counter <= SIMULATIONS
 
     real_winner_bahavior, wb_counter, game_over_by_time_out = (
-        calculate_winner_v2(hold_info_per_simulation_list)
+        prepare_calculate_winner(hold_info_per_simulation_list)
     )
 
     percentual_wins_impulsive = (wb_counter[0]/SIMULATIONS)*100
@@ -458,7 +463,7 @@ def control_run_game():
     mean_round_per_simulation = sum(round_by_simulation)/SIMULATIONS
 
     build_line('#', 100)
-    print(f'\t\t GAME OVER BY ROUND')
+    print(f'\t\t GAME OVER')
     print('\n\t\t FINAL RESULTS')
     build_line('-', 60)
 

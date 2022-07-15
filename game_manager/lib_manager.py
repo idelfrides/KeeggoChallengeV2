@@ -7,7 +7,7 @@
 # importing modules
 # ---------------------------------------
 
-from errno import ESTALE
+
 from  IJGeneralUsagePackage.ijfunctions import (
     print_log
 )
@@ -18,7 +18,6 @@ from hold_constants_paths import (
     SELL_VALUE,
     RENT_VALUE
 )
-
 
 # ------------------------------------------------------------------
 #                     CLASS BEGIN HERE
@@ -274,7 +273,6 @@ def one_winner_per_simulation(all_player_info_dict):
     return winner_player_info
 
 
-
 def show_game_over_winner(winner_player):
 
     info = """
@@ -285,7 +283,7 @@ def show_game_over_winner(winner_player):
                 BALANCE : {}
     -----------------------------------------------------------
     """.format(
-        winner_player['name'], winner_player['code'], winner_player['balance']
+        winner_player['name'], str(winner_player['code_']), winner_player['balance']
     )
 
     print(info)
@@ -293,27 +291,42 @@ def show_game_over_winner(winner_player):
     return
 
 
-def calculate_winner_v2(hold_info_per_simulation_list):
+def prepare_calculate_winner(hold_info_per_simulation_list):
 
     winner_behavior_list = []
     player_number = []
     winner_behavior_number = []
-    winner_dict = {}
     game_over_by_timeout = 0
     palyer_info_to_define_winner = []
 
     for one_simulation_info in hold_info_per_simulation_list:
+        winner_behavior_dict = one_simulation_info.get('winner_behavior')
 
-        winner_behavior_dict = one_simulation_info['winner_behavior']
+        try:
+            check_balance = (
+                list(dict(winner_behavior_dict).values())[0].get('balance')
+            )
+        except Exception as error:
+            check_balance = None
 
-        if not winner_behavior_dict:
-            game_over_by_timeout += one_simulation_info['time_out']
-        else:
+        if not check_balance:
+            continue
+
+        if check_balance < 0:
+            continue
+
+        if one_simulation_info.get('game_over'): # game_over=True | by a winner
+
             palyer_info_to_define_winner.append(winner_behavior_dict)
             player_number = dict(winner_behavior_dict).keys()
             player_number = int(list(player_number)[0])
             winner_behavior_number.append(player_number)
 
+        else:  # game_over = False | by time out
+
+            winner_behavior_dict = one_simulation_info['winner_behavior']
+            game_over_by_timeout += one_simulation_info['time_out']
+            palyer_info_to_define_winner.append(winner_behavior_dict)
 
     real_winner_bahavior, winner_behavior_list = calculate_winner(
         palyer_info_to_define_winner
@@ -350,8 +363,42 @@ def calculate_winner_v2(hold_info_per_simulation_list):
     return real_winner_bahavior, winner_behavior_list, game_over_by_timeout
 
 
-def calculate_desempante():
-    pass
+def calculate_tiebraeker(player_dict_tiebraeker_list):
+
+    print('\n\n\n CALCULATE TIEBRAEKER \n\n\n')
+
+    seen_balance = set()
+    balance_round_older = {}
+    real_winner_info = {}
+    real_winner_info_list = []
+
+    for one_simulation_info in player_dict_tiebraeker_list:
+
+        for balance, winner_info in one_simulation_info.items():
+            balance = int(balance)
+
+            if balance in seen_balance:
+
+                previous_round = balance_round_older[str(balance)][0]
+                current_round = winner_info.get('round_')
+
+                if previous_round <= current_round:
+                    previous_code = balance_round_older[str(balance)][1]
+                    real_winner_info[str(previous_code)] = winner_info
+
+                elif previous_round > current_round:
+                    current_code = winner_info.get('code_')
+                    real_winner_info[str(current_code)] = winner_info
+
+                real_winner_info_list.append(real_winner_info)
+
+            else:
+                balance_round_older[str(balance)] = [
+                    winner_info['round_'], winner_info['code_']]
+
+                seen_balance.add(balance)
+
+    return real_winner_info_list
 
 
 def calculate_winner(hold_info_per_simulation_list):
@@ -360,25 +407,57 @@ def calculate_winner(hold_info_per_simulation_list):
     balance = 0
     winner_behavior_list = []
     winner_dict= {}
+    balance_dict = {}
+    graetest_balance_dict = {}
 
     for one_player_info in hold_info_per_simulation_list:
 
         for id_player, info in dict(one_player_info).items():
+
             greatest_balance = info['balance']
 
             if balance > greatest_balance:
                 hold_balace = greatest_balance
                 greatest_balance = balance
+
+                info['code_'] = int(id_player)
+                balance_dict[str(balance)] = graetest_balance_dict.get(str(balance))
+
+                try:
+                    id_player =  balance_dict[str(balance)].get('code_')
+                except Exception as error:
+                    pass
+
                 winner_player_number = int(id_player)
 
             elif balance < greatest_balance:
                 balance = greatest_balance
+
+                info['code_'] = int(id_player)
+                graetest_balance_dict[str(greatest_balance)] = info
+
                 winner_player_number = int(id_player)
 
             elif balance == greatest_balance:
-                pass
-                # balance = greatest_balance
-                # winner_player_number = int(id_player)
+                if balance_dict or graetest_balance_dict:
+
+                    real_winner_dic = calculate_tiebraeker(
+                        [balance_dict, graetest_balance_dict]
+                    )
+
+                    try:
+                        real_winner_dic = real_winner_dic[0]
+
+                        info['code_'] = list(real_winner_dic.values())[0].get('code_')
+
+                        graetest_balance_dict[str(greatest_balance)] = info
+
+                        id_player = info['code_']
+
+                    except Exception as error:
+                        pass
+
+                winner_player_number = int(id_player)
 
             else:
                 pass

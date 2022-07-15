@@ -2,7 +2,7 @@
 SIMULATIONS = 300     # 300
 ROUNDS = 1000         # 1000
 
-RENT_VALUE = 50
+RENT_VALUE = 70
 SELL_VALUE =  RENT_VALUE * 2
 
 BOARD_LENGHT = 20
@@ -15,4 +15,4 @@ SLEEP_TIME_ONE = 1
 SLEEP_TIME_TWO = 2
 SLEEP_TIME_THREE = 3
 SLEEP_TIME_FOUR = 4
-SLEEP_TIME_WALK = 0  # in second . set value 1 to see player walking
+SLEEP_TIME_WALK = 0  # in second . set value 0.7 to see player walking

@@ -11,7 +11,7 @@ This is the thecnical challenge for join Keeggo company as Python Developer.
 
 ### 1 | Clone the remote repository to start testing
 
-     git clone https://github.com/idelfrides/keego_challenge
+     git clone https://github.com/idelfrides/KeeggoChallengeV2
 
 ### 2 | Create your virtualenv like
 
@@ -35,7 +35,7 @@ If you are using fish, write
 
      https://github.com/idelfrides/IJGeneralUsagePackage
 
-### 6 | After you read that repro and setted up your workspace, take a look to file hold_constants_paths.py and make some change if you want.
+### 6 | After you read that repro and set up your workspace, take a look to file 'hold_constants_paths.py' and make some changes if you want.
 
      Access file  'hold_constants_paths.py'
 
