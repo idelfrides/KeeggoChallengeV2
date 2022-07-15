@@ -332,40 +332,12 @@ def prepare_calculate_winner(hold_info_per_simulation_list):
         palyer_info_to_define_winner
     )
 
-    '''
-    winner_behavior_list = winner_behavior_number
-
-    count_winner_1 = winner_behavior_list.count(1)
-    count_winner_2 = winner_behavior_list.count(2)
-    count_winner_3 = winner_behavior_list.count(3)
-    count_winner_4 = winner_behavior_list.count(4)
-
-    winner_dict[str(count_winner_1)] = 1
-    winner_dict[str(count_winner_2)] = 2
-    winner_dict[str(count_winner_3)] = 3
-    winner_dict[str(count_winner_4)] = 4
-
-    winner_behavior_counter = [
-        count_winner_1, count_winner_2, count_winner_3, count_winner_4
-    ]
-
-    winner_behavior_list.clear()
-
-    winner_behavior_list = [
-        count_winner_1, count_winner_2, count_winner_3, count_winner_4]
-
-    winner_behavior_counter.sort(reverse=True)
-    most_win_behavior = winner_behavior_counter[0]
-
-    real_winner_bahavior = winner_dict[str(most_win_behavior)]
-    '''
-
     return real_winner_bahavior, winner_behavior_list, game_over_by_timeout
 
 
 def calculate_tiebraeker(player_dict_tiebraeker_list):
 
-    print('\n\n\n CALCULATE TIEBRAEKER \n\n\n')
+    print_log('CALCULATE TIEBRAEKER')
 
     seen_balance = set()
     balance_round_older = {}
