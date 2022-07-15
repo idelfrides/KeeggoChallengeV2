@@ -351,7 +351,7 @@ def control_run_game():
         game_over_by_player_winner = 0
         game_over = False
 
-        for round in range(1, ROUNDS + 1):
+        for round_ in range(1, ROUNDS + 1):
 
             if player_number > 4:
                 player_number = 1
@@ -366,7 +366,7 @@ def control_run_game():
 
             run_game(
                 simulation_=simulation_counter,
-                round_=round,
+                round_=round_,
                 player_number=player_number,
                 player_game_over=player_game_over,
                 property_board_list=property_board_list,
@@ -402,7 +402,7 @@ def control_run_game():
             )
             winner_dict['simulation'] = simulation_counter
             winner_dict['game_over'] = game_over
-            winner_dict['round_'] = round
+            winner_dict['round_'] = round_
 
             show_game_over_winner(winner_dict)
             winner_dict_info[str(player_key)] = winner_dict
@@ -422,16 +422,16 @@ def control_run_game():
                 winner_dict['balance'] = player_info['balance']
                 winner_dict['simulation'] = simulation_counter
                 winner_dict['game_over'] = game_over
-                winner_dict['round_'] = round
+                winner_dict['round_'] = round_
 
                 winner_dict_info[number_] = winner_dict
 
-            if round == ROUNDS:
+            if round_ == ROUNDS:
                 game_over_by_time_out += 1
             else:
                 game_over_by_player_winner += 1
 
-            round_by_simulation.append(round)
+            round_by_simulation.append(round_)
 
         hold_info_per_simulation_dict['winner_behavior'] = winner_dict_info
 
@@ -455,12 +455,12 @@ def control_run_game():
         prepare_calculate_winner(hold_info_per_simulation_list)
     )
 
-    percentual_wins_impulsive = (wb_counter[0]/SIMULATIONS)*100
-    percentual_wins_demanding = (wb_counter[1]/SIMULATIONS)*100
-    percentual_wins_cautious = (wb_counter[2]/SIMULATIONS)*100
-    percentual_wins_random = (wb_counter[3]/SIMULATIONS)*100
+    percentual_wins_impulsive = round((wb_counter[0]/SIMULATIONS)*100, 2)
+    percentual_wins_demanding = round((wb_counter[1]/SIMULATIONS)*100, 2)
+    percentual_wins_cautious = round((wb_counter[2]/SIMULATIONS)*100, 2)
+    percentual_wins_random = round((wb_counter[3]/SIMULATIONS)*100, 2)
 
-    mean_round_per_simulation = sum(round_by_simulation)/SIMULATIONS
+    mean_round_per_simulation = round(sum(round_by_simulation)/SIMULATIONS, 2)
 
     build_line('#', 100)
     print(f'\t\t GAME OVER')
