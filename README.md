@@ -4,7 +4,7 @@ This is the thecnical challenge for join Keeggo company as Python Developer.
 
 ## STEPS TO RUN THIS  GAME LOCALY
 
-### TECNICAL REQUERIMENTS:
+### | Tecnical Requeriments:
 
      Python 3.x
      PIP newest version
