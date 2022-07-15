@@ -15,15 +15,40 @@ from IJGeneralUsagePackage.ijfunctions import (
 
 def show_info(**kwarg):
 
-    info = f"""
-    ---------------------------------------------------------
-            GAME ROUND : [ {kwarg['round']} ]
-            PLAYER PROFILE --> {kwarg['player']}
-    ----------------------------------------------------------
-    """
-    print_log(info)
-    return
+    if kwarg['type_'] == 'round':
 
+        info = f"""
+        ----------------------------------------------------------
+                GAME ROUND : [ {kwarg['value_']} ]
+                PLAYER PROFILE --> {kwarg['player']}
+                PLAYER BALANCE --> {kwarg['balance']}
+        ----------------------------------------------------------
+        """
+
+    if kwarg['type_'] == 'game_info':
+
+        info = f"""
+        ----------------------------------------------------------
+                SIMULATION/PARTIDA --> [ {kwarg['value_']} ]
+                GAME ROUND --> [ {kwarg['value_round']} ]
+                PLAYER PROFILE --> {kwarg['player']}
+                PLAYER BALANCE --> {kwarg['balance']}
+        ----------------------------------------------------------
+        """
+
+    if kwarg['type_'] == 'simulation':
+
+        info = f"""
+        ---------------------------------------------------------
+
+                GAME SIMULATION/PARTIDA : [ {kwarg['value_']} ]
+
+        ----------------------------------------------------------
+        """
+
+    print(info)
+
+    return
 
 
 def define_player_number():

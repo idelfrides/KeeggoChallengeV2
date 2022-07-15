@@ -1,12 +1,30 @@
 
+
 # rent_value = valor de aluguel
 
 
 # ---------------------------------------
 # importing modules
 # ---------------------------------------
-from utils.libs import print_log
+
+from errno import ESTALE
+from  IJGeneralUsagePackage.ijfunctions import (
+    print_log
+)
+
 from random import randint
+from hold_constants_paths import (
+    BOARD_LENGHT,
+    MAX_LIMIT,
+    SELL_VALUE,
+    RENT_VALUE
+)
+
+
+# ------------------------------------------------------------------
+#                     CLASS BEGIN HERE
+# ------------------------------------------------------------------
+
 
 class PalyerManager(object):
 
@@ -17,13 +35,12 @@ class PalyerManager(object):
 
 
     def get_land_property(self):
-        MANX_RENT = 100
         land_property = {}
-        land_property['name'] = ''
+        land_property['name'] = 'Keeggo'
         land_property['owner'] = self.player
-        land_property['sell_value'] =  randint(MANX_RENT, 200)
-        land_property['rent_value'] = randint(20, MANX_RENT)
-        land_property['position'] = randint(1, 20)
+        land_property['sell_value'] =  SELL_VALUE
+        land_property['rent_value'] = RENT_VALUE
+        land_property['position'] = randint(1, 20)  # wil be updated
 
         return  land_property
 
@@ -50,7 +67,7 @@ class PalyerManager(object):
         return player_info
 
 
-    def round_completed(self):
+    def board_completed(self):
         return 100
 
 
@@ -160,7 +177,7 @@ class PalyerManager(object):
     def buy_land_property_random_player(self, player_number, all_player_info):
         print_log(f'RANDOM PLAYER BUYS A PROPERTY HE LANDS ON WITH A 50% OF PROBABILITY')
 
-        buy = randint(1, 50)
+        buy = randint(1, MAX_LIMIT)
 
         try:
             player_info = all_player_info[str(player_number)]
@@ -221,3 +238,189 @@ class PalyerManager(object):
         print(all_player_info)
 
         return player_info, other_player_property
+
+
+def update_board(property_board_list, player_game_over):
+
+    """ UPDATE BOARD PROPERTY """
+
+    for board_posi, owner_content in enumerate(property_board_list, start=0):
+
+        if owner_content == 'SEM-DONO':
+            continue
+
+        player_number = list(dict(owner_content).keys())
+        player_number = int(player_number[0])
+
+        if player_number in player_game_over:
+            property_board_list[board_posi] = 'SEM-DONO'
+        else:
+            pass
+
+    return property_board_list
+
+
+def one_winner_per_simulation(all_player_info_dict):
+
+    winner_player_info = {}
+    winner_balance_list = []
+
+    winner_balance_list.append(all_player_info_dict)
+    code_winner, _ = calculate_winner(winner_balance_list)
+
+    winner_player_info[str(code_winner)] = (
+        all_player_info_dict.get(str(code_winner))
+    )
+
+    return winner_player_info
+
+
+
+def show_game_over_winner(winner_player):
+
+    info = """
+    -----------------------------------------------------------
+                THE GAME IS OVER
+                WE GOT A PLAYER WINNER
+                WINNER [ {} ] | NUMBER: {}
+                BALANCE : {}
+    -----------------------------------------------------------
+    """.format(
+        winner_player['name'], winner_player['code'], winner_player['balance']
+    )
+
+    print(info)
+
+    return
+
+
+def calculate_winner_v2(hold_info_per_simulation_list):
+
+    winner_behavior_list = []
+    player_number = []
+    winner_behavior_number = []
+    winner_dict = {}
+    game_over_by_timeout = 0
+    palyer_info_to_define_winner = []
+
+    for one_simulation_info in hold_info_per_simulation_list:
+
+        winner_behavior_dict = one_simulation_info['winner_behavior']
+
+        if not winner_behavior_dict:
+            game_over_by_timeout += one_simulation_info['time_out']
+        else:
+            palyer_info_to_define_winner.append(winner_behavior_dict)
+            player_number = dict(winner_behavior_dict).keys()
+            player_number = int(list(player_number)[0])
+            winner_behavior_number.append(player_number)
+
+
+    real_winner_bahavior, winner_behavior_list = calculate_winner(
+        palyer_info_to_define_winner
+    )
+
+    '''
+    winner_behavior_list = winner_behavior_number
+
+    count_winner_1 = winner_behavior_list.count(1)
+    count_winner_2 = winner_behavior_list.count(2)
+    count_winner_3 = winner_behavior_list.count(3)
+    count_winner_4 = winner_behavior_list.count(4)
+
+    winner_dict[str(count_winner_1)] = 1
+    winner_dict[str(count_winner_2)] = 2
+    winner_dict[str(count_winner_3)] = 3
+    winner_dict[str(count_winner_4)] = 4
+
+    winner_behavior_counter = [
+        count_winner_1, count_winner_2, count_winner_3, count_winner_4
+    ]
+
+    winner_behavior_list.clear()
+
+    winner_behavior_list = [
+        count_winner_1, count_winner_2, count_winner_3, count_winner_4]
+
+    winner_behavior_counter.sort(reverse=True)
+    most_win_behavior = winner_behavior_counter[0]
+
+    real_winner_bahavior = winner_dict[str(most_win_behavior)]
+    '''
+
+    return real_winner_bahavior, winner_behavior_list, game_over_by_timeout
+
+
+def calculate_desempante():
+    pass
+
+
+def calculate_winner(hold_info_per_simulation_list):
+
+    greatest_balance = 0
+    balance = 0
+    winner_behavior_list = []
+    winner_dict= {}
+
+    for one_player_info in hold_info_per_simulation_list:
+
+        for id_player, info in dict(one_player_info).items():
+            greatest_balance = info['balance']
+
+            if balance > greatest_balance:
+                hold_balace = greatest_balance
+                greatest_balance = balance
+                winner_player_number = int(id_player)
+
+            elif balance < greatest_balance:
+                balance = greatest_balance
+                winner_player_number = int(id_player)
+
+            elif balance == greatest_balance:
+                pass
+                # balance = greatest_balance
+                # winner_player_number = int(id_player)
+
+            else:
+                pass
+
+        winner_behavior_list.append(winner_player_number)
+
+    count_1 = winner_behavior_list.count(1)
+    count_2 = winner_behavior_list.count(2)
+    count_3 = winner_behavior_list.count(3)
+    count_4 = winner_behavior_list.count(4)
+
+    winner_dict[str(count_1)] = 1
+    winner_dict[str(count_2)] = 2
+    winner_dict[str(count_3)] = 3
+    winner_dict[str(count_4)] = 4
+
+    winner_behavior_counter = [count_1, count_2, count_3, count_4]
+    winner_behavior_list.clear()
+    winner_behavior_list = [count_1, count_2, count_3, count_4]
+
+    winner_behavior_counter.sort(reverse=True)
+    most_winner = winner_behavior_counter[0]
+
+    winner_by_bahavior = winner_dict[str(most_winner)]
+
+    return winner_by_bahavior, winner_behavior_list
+
+
+def define_player_behavior(player_numer):
+    """ 4 types
+        1. Player one is impulsive
+        2. Player two is demanding
+        3. Player three is cautious
+        4. Player four is random
+    """
+
+    player_dict = {}
+
+    player_dict['1'] = 'JOGADOR INPULSIVO'
+    player_dict['2'] = 'JOGADOR EXIGENTE'
+    player_dict['3'] = 'JOGADOR CAUTELOSO'
+    player_dict['4'] = 'JOGADOR ALEATÓRIO'
+
+    return player_dict[str(player_numer)]

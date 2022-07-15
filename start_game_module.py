@@ -3,11 +3,11 @@
 
 import sys
 import time
-from typing import Counter
 
 from hold_constants_paths import (
-    SIMULATIONS, ROUNDS,
-    SLEEP_TIME_ZERO,
+    DEFAULT_BALANCE, SIMULATIONS,
+    ROUNDS, SLEEP_TIME_TWO,
+    SLEEP_TIME_WALK, SLEEP_TIME_ZERO,
     BOARD_LENGHT, SLEEP_TIME_ONE
 )
 from utils.lib_functions import (
@@ -15,12 +15,19 @@ from utils.lib_functions import (
     define_player_number,
 )
 from IJGeneralUsagePackage.ijfunctions import (
+    build_line,
+    convert_minutes_to_second,
     ij_smart_menu,
-    make_response,
     make_sound, print_log
 )
-
-from game_manager.lib_manager import PalyerManager
+from game_manager.lib_manager import (
+    PalyerManager,
+    calculate_winner_v2,
+    define_player_behavior,
+    one_winner_per_simulation,
+    show_game_over_winner,
+    update_board
+)
 
 
 # ------------------------------------------------------------------
@@ -28,37 +35,60 @@ from game_manager.lib_manager import PalyerManager
 # ------------------------------------------------------------------
 
 
-def run_game(round, player_number, player_game_over, property_board_list, all_player_info):
+def run_game(round_, simulation_, player_number, player_game_over, property_board_list, all_player_info, current_balance):
 
-    player = PalyerManager(player=player_number)
-
-    show_info(round=round, player=player.player)
-
-    print_log(f"{player.player} MUST WALK [{player.position}] position")
-
-    try:
-        balance = all_player_info[str(player_number)]['balance']
-        if balance < 0:
-            player_game_over.append(player_number)
-    except Exception as excep:
-        print_log(f'EXCEPTION --> {excep}')
-        pass
+    player = PalyerManager(player=player_number, money=current_balance)
 
     if player_number in player_game_over:
-        print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER {player_number}')
+        print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER:    {player_number}')
         return
 
-    min_position = 1
+    show_info(
+        type_='game_info', balance=player.money,
+        value_=simulation_, value_round=round_,
+        player=player.player
+    )
+    time.sleep(0)
+
+    to_walk_on_board = player.position
+
+    try:
+
+        balance = all_player_info[str(player_number)]['balance']
+        current_position = all_player_info[str(player_number)]['position']
+
+        player.position += current_position
+
+        if balance < 0:
+            player_game_over.append(player_number)
+
+    except Exception as excep:
+        current_position = 1
+
+
+    game_info = """
+    ---------------------------------------------------------------------
+        [ {} ]  MUST WALK [ {} ] POSITION(S) ON THE BOARD
+        FROM CURRENT POSITION {}
+    ---------------------------------------------------------------------
+    """.format(player.player, to_walk_on_board, current_position)
+
+    print(game_info)
+
+    if player.position > BOARD_LENGHT:
+        player.position = BOARD_LENGHT
+
 
     while True:
-        for walk_ in range(min_position, player.position + 1):
+        for walk_ in range(current_position, player.position + 1):
 
-            print_log(f'{player.player} IN POSITION [{walk_}]...')
+            print_log(f'{player.player} IN POSITION [ {walk_} ] ...')
+            time.sleep(SLEEP_TIME_WALK)
 
             if walk_ == player.position:
 
                 print_log(
-                    f'{player.player} GETS HIS END POSITION [{walk_}]...'
+                    f'{player.player} GETS HIS END POSITION [ {walk_} ]...'
                 )
 
                 # find player profile to verify what he going to do
@@ -73,7 +103,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
 
                         all_player_info[str(player_number)] = player_info
 
-                        if all_player_info[str(player_number)]['balance'] < 0:
+                        if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
@@ -91,14 +121,14 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
                             player_number,  all_player_info, property_board_list)
                         )
 
+                        all_player_info[str(player_number)] = player_info
+
                         if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            all_player_info[str(player_number)] = player_info
-
                             property_board_list[player.position-1] = (
                                 other_player_property
                             )
@@ -141,13 +171,14 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
                             player_number, all_player_info, property_board_list)
                         )
 
+                        all_player_info[str(player_number)] = player_info
+
                         if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            all_player_info[str(player_number)] = player_info
                             property_board_list[player.position-1] = (
                                 other_player_property
                             )
@@ -174,7 +205,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
 
                         all_player_info[str(player_number)] = player_info
 
-                        if all_player_info[str(player_number)]['balance'] < 0:
+                        if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
@@ -193,13 +224,14 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
                             player_number, all_player_info, property_board_list)
                         )
 
+                        all_player_info[str(player_number)] = player_info
+
                         if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
-                            all_player_info.pop(str(player_number))
+                            # all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            all_player_info[str(player_number)] = player_info
                             property_board_list[player.position-1] = (
                                 other_player_property
                             )
@@ -208,7 +240,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
                         pass
 
                 if player_number == 4:  # random one
-                    if property_board_list[player.position-1] == 0:
+                    if property_board_list[player.position-1] == 'SEM-DONO':
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
                         player_info, player_board_content = player.buy_land_property_random_player(player_number,
@@ -220,7 +252,7 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
 
                         all_player_info[str(player_number)] = player_info
 
-                        if all_player_info[str(player_number)]['balance'] < 0:
+                        if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
@@ -238,155 +270,214 @@ def run_game(round, player_number, player_game_over, property_board_list, all_pl
                             player_number, all_player_info, property_board_list)
                         )
 
+                        all_player_info[str(player_number)] = player_info
+
                         if player_info['balance'] < 0:
                             print_log(f'GAME IS OVER FOR [ {player.player} ]...')
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            all_player_info[str(player_number)] = player_info
                             property_board_list[player.position-1] = (
                                 other_player_property
                             )
-
                     else:
                         pass
+                else:   # END if player_number == 4:  # random one
+                    pass
 
-        min_position = player.position
+            # END if walk_ == player.position
+        # END for walk_ in range(min_position, player.position + 1)
+
+        current_position = player.position
         player.position += 1
 
+        try:
+            player_info_value = all_player_info[str(player_number)]
+            player_info_value['round_'] = round_
+
+            player_info_value['position'] = current_position
+            all_player_info[str(player_number)] = player_info_value
+        except Exception as error:
+            pass
+
         if player.position > BOARD_LENGHT:
-            updated_balance = player.round_completed()
+            updated_balance = player.board_completed()
+            print_log(f' UPDATE BALANCE FOR PLAYER [ {player.player} ].')
 
             try:
-                all_player_info[str(player_number)]['balance'] += updated_balance
+                all_player_info[str(player_number)]['balance'] += (
+                    updated_balance
+                )
+
+                all_player_info[str(player_number)]['position'] = 1
+
             except Exception as err:
                 print_log(f'EXCEPTION: {err}')
 
-            break   # exit from while
+            break  # exit from while
+        else:
+            break  # exit from while for one player
 
+    # END while True:
 
     return
 
 
-def calculate_winner(all_player_info):
-    greatest_balance = 0
-    balance = 0
-    winner_behavior_list = []
-    winner_dict= {}
-
-    for one_player_info in all_player_info:
-        for id_player, info in one_player_info.items():
-            greatest_balance = info['balance']
-
-            if balance > greatest_balance:
-                hold_balace = greatest_balance
-                greatest_balance = balance
-                winner_player_number = int(id_player)
-            else:
-                balance = greatest_balance
-                winner_player_number = int(id_player)
-
-        winner_behavior_list.append(winner_player_number)
-
-    count_1 = winner_behavior_list.count(1)
-    count_2 = winner_behavior_list.count(2)
-    count_3 = winner_behavior_list.count(3)
-    count_4 = winner_behavior_list.count(4)
-
-    winner_dict[str(count_1)] = 1
-    winner_dict[str(count_2)] = 2
-    winner_dict[str(count_3)] = 3
-    winner_dict[str(count_4)] = 4
-
-    winner_behavior_counter = [count_1, count_2, count_3, count_4]
-    winner_behavior_list.clear()
-    winner_behavior_list = [count_1, count_2, count_3, count_4]
-
-    winner_behavior_counter.sort(reverse=True)
-    most_win = winner_behavior_counter[0]
-
-    winner_by_bahavior = winner_dict[str(most_win)]
-
-    return winner_by_bahavior, winner_behavior_list
-
-
 def control_run_game():
 
-    winner_behavior = []
     simulation_counter = 1
-
-    # import pdb; pdb.set_trace()
+    hold_info_per_simulation_list = []
+    round_by_simulation = []
+    game_over = False
 
     # SIMULATIONS is the same as PARTIDAS
-
     while simulation_counter <= SIMULATIONS:
 
-        print_log(f'\n\n\n SIMULATION/PARTIDA --> {SIMULATIONS} \n\n\n')
+        build_line('-', 80)
+        print(f'\t\t\t THE GAME IS ONGOING ...')
 
+        hold_info_per_simulation_dict = {}
         player_game_over = []
-        round_by_simulation = []
         all_player_info = {}
-        players_dict_info = {}
+        winner_dict_info = {}
+        winner_dict_info_help = {}
+
         property_board_list = ['SEM-DONO' for v in range(1, 21)]
 
-        print_log(f'STARTING THE GAME ...\n')
         player_number = define_player_number()
-        game_over_by_complete_round = 0
+
+        game_over_by_time_out = 0
+        game_over_by_player_winner = 0
+        game_over = False
 
         for round in range(1, ROUNDS + 1):
 
             if player_number > 4:
                 player_number = 1
 
-            run_game(round, player_number, player_game_over,
-                property_board_list, all_player_info)
+            try:
+                current_balance = (
+                    all_player_info.get(str(player_number), DEFAULT_BALANCE)['balance']
+                )
+            except Exception as error:
+                print_log(f'\n\n EXCEPTION --> {error}')
+                current_balance = DEFAULT_BALANCE
 
-            player_number += 1  # next  = NEXT ROUND
-            time.sleep(SLEEP_TIME_ONE)
+            run_game(
+                simulation_=simulation_counter,
+                round_=round,
+                player_number=player_number,
+                player_game_over=player_game_over,
+                property_board_list=property_board_list,
+                all_player_info=all_player_info,
+                current_balance=current_balance
+            )
 
-        for key, value_ in all_player_info.items():
-            players_dict_info[key] = value_
+            # print(f'\n\n\t\t PROPERTY_BOARD_LIST \n\n\t {property_board_list}')
 
-        winner_behavior.append(players_dict_info)
+            player_key = list(all_player_info.keys())
 
-        game_over_by_complete_round += 1
-        round_by_simulation.append(round)
+            if len(player_game_over) == 3 and player_key:
+
+                player_key = player_key[0]
+
+                if str(player_key).isnumeric() and int(player_key) not in player_game_over:
+                    game_over = True
+                    break
+
+            property_board_list = update_board(
+                property_board_list=property_board_list, player_game_over=player_game_over
+            )
+
+            time.sleep(convert_minutes_to_second(SLEEP_TIME_ZERO))
+
+            player_number += 1 # next  = NEXT ROUND
+
+        # END for round in range(1, ROUNDS + 1):
+
+        if game_over:
+            winner_dict = {}
+            winner_dict['code'] = player_key
+            winner_dict['name'] = all_player_info[str(player_key)]['name']
+            winner_dict['balance'] = all_player_info[str(player_key)]['balance']
+            winner_dict['simulation'] = simulation_counter
+
+            show_game_over_winner(winner_dict)
+            # real_winner_bahavior_info.add(player_key)
+            winner_dict_info[str(player_key)] = winner_dict
+
+            game_over = False
+
+            # break
+            # return
+
+        if not game_over:
+            if len(all_player_info) > 1:
+                all_player_info = one_winner_per_simulation(all_player_info)
+
+            for number_, player_info in all_player_info.items():
+                winner_dict_info_help['name'] = player_info['name']
+                winner_dict_info_help['balance'] = player_info['balance']
+                winner_dict_info_help['simulation'] = simulation_counter
+
+                winner_dict_info[number_] = winner_dict_info_help
+
+            if round == ROUNDS:
+                game_over_by_time_out += 1
+            else:
+                game_over_by_player_winner += 1
+
+            round_by_simulation.append(round)
+
+        hold_info_per_simulation_dict['winner_behavior'] = winner_dict_info
+
+        hold_info_per_simulation_dict['time_out'] = (
+            game_over_by_time_out
+        )
+
+        hold_info_per_simulation_dict['player_winner'] = (
+            game_over_by_player_winner
+        )
+
+        hold_info_per_simulation_list.append(hold_info_per_simulation_dict)
 
         simulation_counter += 1
 
+    # END while simulation_counter <= SIMULATIONS
 
-    winner_by_bahavior, winner_behavior_counter = (
-        calculate_winner(winner_behavior)
+    real_winner_bahavior, wb_counter, game_over_by_time_out = (
+        calculate_winner_v2(hold_info_per_simulation_list)
     )
-    wb_counter = winner_behavior_counter
 
-    percentual_vitoria_impulsivo = (wb_counter[0]/SIMULATIONS) *100
-    percentual_vitoria_exigente = (wb_counter[1]/SIMULATIONS) *100
-    percentual_vitoria_cauteloso = (wb_counter[2]/SIMULATIONS) *100
-    percentual_vitoria_aleatorio = (wb_counter[3]/SIMULATIONS) *100
+    percentual_wins_impulsive = (wb_counter[0]/SIMULATIONS)*100
+    percentual_wins_demanding = (wb_counter[1]/SIMULATIONS)*100
+    percentual_wins_cautious = (wb_counter[2]/SIMULATIONS)*100
+    percentual_wins_random = (wb_counter[3]/SIMULATIONS)*100
 
-    round_mean = sum(round_by_simulation)/SIMULATIONS
+    mean_round_per_simulation = sum(round_by_simulation)/SIMULATIONS
 
-    print('-'*80)
-    print(f'GOME OVER BY ROUND {round}')
-    print('\n  GAME RESULTS \n')
-    print('-'*40)
+    build_line('#', 100)
+    print(f'\t\t GAME OVER BY ROUND')
+    print('\n\t\t FINAL RESULTS')
+    build_line('-', 60)
 
-    print(f'\n PARTIDAS POR TIME OUT: {game_over_by_complete_round}')    # 1
-    print(f'\n MÉDIA DE RODADAS POR PARTIDA : {round_mean}')             # 2
-    print(f'\nTAXA DE VITORIAS DO IMPULSIVO: {percentual_vitoria_impulsivo}')   # 3
-    print(f'\n TAXA DE VITORIAS DO EXIGENTE: {percentual_vitoria_exigente}')
-    print(f'\n TAXA DE VITORIAS DO CAUTELOSO: {percentual_vitoria_cauteloso}')
-    print(f'\n TAXA DE VITORIAS DO ALEATÓRIO: {percentual_vitoria_aleatorio}')
-    print(f'\n COMPORTAMENTO MAIS VENCEDOR: {winner_by_bahavior}')       # 4
+    print(f'\n\tPARTIDAS POR TIME OUT: {game_over_by_time_out}')            # 1
+    print(f'\n\tMÉDIA DE RODADAS POR PARTIDA: {mean_round_per_simulation}') # 2
+    print(f'\n\t% DE VITORIAS DO IMPULSIVO: {percentual_wins_impulsive}')   # 3
+    print(f'\n\t% DE VITORIAS DO EXIGENTE: {percentual_wins_demanding}')    # 3
+    print(f'\n\t% DE VITORIAS DO CAUTELOSO: {percentual_wins_cautious}')    # 3
+    print(f'\n\t% DE VITORIAS DO ALEATÓRIO: {percentual_wins_random}')      # 3
 
-    print('-'*80)
+    winner_bahavior = define_player_behavior(real_winner_bahavior)
+    print(f'\n\tCOMPORTAMENTO MAIS VENCEDOR: [ {winner_bahavior} ]')           # 4
 
+    build_line('#', 100)
+
+    return
 
 
 if __name__ == '__main__':
-
 
     menu_options = {
         1: 'run game'
@@ -397,8 +488,6 @@ if __name__ == '__main__':
         SATART_TIME = time.time()
 
         menu_option_qtd = len(menu_options.values())
-
-        # TODO: create a show_info function in the libs module
 
         menu_response = ij_smart_menu(menu_options.values())
 
@@ -424,10 +513,13 @@ if __name__ == '__main__':
         total_minutes =  str(total_run_time).split('.')[0]
         total_seconds =  str(total_run_time).split('.')[1]
 
-        make_response(
-            total_minutes=total_minutes, total_seconds=total_seconds,source_data=user_action
-        )
+        # make_response(
+        #     total_minutes=total_minutes,
+        #     total_seconds=total_seconds,
+        #     source_data=user_action
+        # )
 
         make_sound()
+        time.sleep(3) # convert_minutes_to_second(SLEEP_TIME_ONE))
         SATART_TIME = 0
         END_TIME = 0
