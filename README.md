@@ -2,6 +2,11 @@
 
 This is the thecnical challenge for join Keeggo company as Python Developer.
 
+To see complete description of this tecnical challenge, acccess link bellow
+
+     https://github.com/idelfrides/KeeggoChallengeV2/wiki
+
+
 ## STEPS TO RUN THIS  GAME LOCALY
 
 ### 0 | Tecnical Requeriments:
@@ -11,7 +16,7 @@ This is the thecnical challenge for join Keeggo company as Python Developer.
 
 ### 1 | Clone the remote repository to start testing
 
-     git clone https://github.com/idelfrides/KeeggoChallengeV2
+     git clone https://github.com/idelfrides/KeeggoChallengeV2.git
 
 ### 2 | Create your virtualenv like
 
@@ -33,7 +38,7 @@ If you are using fish, write
 
 ### 5 | You going to need a external lib to make this game works. Access repository bellow
 
-     https://github.com/idelfrides/IJGeneralUsagePackage
+     https://github.com/idelfrides/IJGeneralUsagePackage | or put ('.git' at and of link)
 
 ### 6 | After you read that the README of repro and set up your workspace, take a look to file 'hold_constants_paths.py' and make some changes if you want.
 
