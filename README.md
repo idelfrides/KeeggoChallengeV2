@@ -4,7 +4,7 @@ This is the thecnical challenge for join Keeggo company as Python Developer.
 
 To see complete description of this tecnical challenge, acccess link bellow
 
-     https://github.com/idelfrides/KeeggoChallengeV2/wiki
+     [SEE FULL DESCRIPTION HERE](#https://github.com/idelfrides/KeeggoChallengeV2/wiki)
 
 
 ## STEPS TO RUN THIS  GAME LOCALY
