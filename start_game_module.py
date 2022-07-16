@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-import sys
+from random import randint
 import time
-from IJGeneralUsagePackage.hold_constants_paths import SLEEP_TIME_ONE
 
 from hold_constants_paths import (
     DEFAULT_BALANCE, SIMULATIONS,
     ROUNDS, BOARD_LENGHT,
-    SLEEP_TIME_WALK, SLEEP_TIME_ZERO
+    SLEEP_TIME_ZERO,
+    SLEEP_TIME_WALK,
 )
 from utils.lib_functions import (
     show_info,
@@ -18,7 +18,8 @@ from IJGeneralUsagePackage.ijfunctions import (
     build_line,
     convert_minutes_to_second,
     ij_smart_menu,
-    make_sound, print_log
+    make_response,
+    make_sound, print_log,
 )
 from game_manager.lib_manager import (
     PalyerManager,
@@ -29,18 +30,28 @@ from game_manager.lib_manager import (
     update_board
 )
 
-
 # ------------------------------------------------------------------
 #                     RUN GAME FUNCTION BEGIN HERE
 # ------------------------------------------------------------------
 
+def run_game(**kwargs):
 
-def run_game(round_, simulation_, player_number, player_game_over, property_board_list, all_player_info, current_balance):
+    # player_number = 1
 
-    player = PalyerManager(player=player_number, money=current_balance)
+    round_ = kwargs['round_']
+    simulation_ = kwargs['simulation_']
+    player_number = kwargs['player_number']
+    player_game_over = kwargs['player_game_over']
+    property_board_list = kwargs['property_board_list']
+    all_player_info = kwargs['all_player_info']
+    current_balance = kwargs['current_balance']
+    rent_value = kwargs['rent_value']
+
+    player = PalyerManager(
+        player=player_number, money=current_balance, rent_value=rent_value)
 
     if player_number in player_game_over:
-        print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER:    {player_number}')
+        print_log(f'GAME IS OVER FOR [ {player.player} ] | NUMBER: {player_number}')
         return
 
     show_info(
@@ -69,7 +80,7 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
     game_info = """
     ---------------------------------------------------------------------
         [ {} ]  MUST WALK [ {} ] POSITION(S) ON THE BOARD
-        FROM CURRENT POSITION {}
+        FROM CURRENT POSITION --> {}
     ---------------------------------------------------------------------
     """.format(player.player, to_walk_on_board, current_position)
 
@@ -103,11 +114,11 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0:   # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
+                            # keep on the game
                             property_board_list[player.position-1] = (
                                 player_board_content
                             )
@@ -123,8 +134,7 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
@@ -146,18 +156,16 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
                             player_number, all_player_info
                         )
 
-                        if player_board_content == 0:
-                            break
-
                         all_player_info[str(player_number)] = player_info
 
-                        print_log(f'{player_board_content}')
+                        if player_board_content == 0:
+                            continue
 
-                        if all_player_info[str(player_number)]['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0: # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
+                            # on the game
                             property_board_list[player.position-1] = (
                                 player_board_content
                             )
@@ -173,8 +181,7 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0: # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
@@ -182,31 +189,28 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
                             property_board_list[player.position-1] = (
                                 other_player_property
                             )
-
                     else:
                         # property belong to this player
                         pass
 
                 if player_number == 3:  # cautious one
 
-                    try:
-                        player.money = all_player_info[str(player_number)]['balance']
-                    except Exception as err:
-                        print_log(f'EXCEPTION: {err}')
-
                     if property_board_list[player.position-1] == 'SEM-DONO':
+
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
-                        player_info, player_board_content = player.buy_land_property_cautious_player(
-                            player_number)
+                        player_info, player_board_content = (
+                            player.buy_land_property_cautious_player( player_number)
+                        )
+
+                        all_player_info[str(player_number)] = player_info
 
                         if player_board_content == 0:   # não comprou
                             continue
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
@@ -217,6 +221,7 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                     # property belong to other plyer
                     elif not property_board_list[player.position-1].get(str(player_number)):
+
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] HAS AN OWNER')
 
                         player_info, other_player_property = (
@@ -226,10 +231,9 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0: # game over
                             player_game_over.append(player_number)
-                            # all_player_info.pop(str(player_number))
+                            all_player_info.pop(str(player_number))
                         else:
                             # on the game
                             property_board_list[player.position-1] = (
@@ -241,22 +245,22 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                 if player_number == 4:  # random one
                     if property_board_list[player.position-1] == 'SEM-DONO':
+
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
-                        player_info, player_board_content = player.buy_land_property_random_player(player_number,
-                            all_player_info
+                        player_info, player_board_content = (
+                            player.buy_land_property_random_player(player_number, all_player_info)
                         )
+
+                        all_player_info[str(player_number)] = player_info
 
                         if player_board_content == 0:
                             continue
 
-                        all_player_info[str(player_number)] = player_info
-
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
-                        else:
+                        else: # still on the game
                             property_board_list[player.position-1] = (
                                 player_board_content
                             )
@@ -272,8 +276,7 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
                         all_player_info[str(player_number)] = player_info
 
-                        if player_info['balance'] < 0:
-                            print_log(f'GAME IS OVER FOR [ {player.player} ]...')
+                        if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
@@ -303,17 +306,16 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
         if player.position > BOARD_LENGHT:
             updated_balance = player.board_completed()
-            print_log(f' UPDATE BALANCE FOR PLAYER [ {player.player} ].')
+            print_log(f'UPDATE BALANCE FOR PLAYER [ {player.player} ].')
 
             try:
                 all_player_info[str(player_number)]['balance'] += (
                     updated_balance
                 )
-
                 all_player_info[str(player_number)]['position'] = 1
 
             except Exception as err:
-                print_log(f'EXCEPTION: {err}')
+                pass
 
             break  # exit from while
         else:
@@ -326,6 +328,10 @@ def run_game(round_, simulation_, player_number, player_game_over, property_boar
 
 def control_run_game():
 
+    build_line('*', 100)
+    print(f'\n\t\t\t\t THE GAME IS RUNNING ...\n.')
+    build_line('*', 100)
+
     simulation_counter = 1
     hold_info_per_simulation_list = []
     round_by_simulation = []
@@ -334,18 +340,20 @@ def control_run_game():
     # SIMULATIONS is the same as PARTIDAS
     while simulation_counter <= SIMULATIONS:
 
-        build_line('-', 80)
-        print(f'\t\t\t THE GAME IS ONGOING ...')
-
         hold_info_per_simulation_dict = {}
         player_game_over = []
         all_player_info = {}
         winner_dict_info = {}
         winner_dict = {}
 
-        property_board_list = ['SEM-DONO' for v in range(1, 21)]
+        property_board_list = ['SEM-DONO' for v in range(BOARD_LENGHT)]
 
         player_number = define_player_number()
+
+        RENT_VALUE = randint(20, DEFAULT_BALANCE/2)
+
+        # holder_obj = HoldSomeThing(some_obj=RENT_VALUE)
+        # holder_obj.set_some_sent(RENT_VALUE)
 
         game_over_by_time_out = 0
         game_over_by_player_winner = 0
@@ -361,23 +369,22 @@ def control_run_game():
                     all_player_info.get(str(player_number), DEFAULT_BALANCE)['balance']
                 )
             except Exception as error:
-                print_log(f'\n\n EXCEPTION --> {error}')
                 current_balance = DEFAULT_BALANCE
 
             run_game(
-                simulation_=simulation_counter,
                 round_=round_,
+                simulation_=simulation_counter,
                 player_number=player_number,
                 player_game_over=player_game_over,
                 property_board_list=property_board_list,
                 all_player_info=all_player_info,
-                current_balance=current_balance
+                current_balance=current_balance,
+                rent_value=RENT_VALUE
             )
 
             player_key = list(all_player_info.keys())
 
             if len(player_game_over) == 3 and player_key:
-
                 player_key = player_key[0]
 
                 if str(player_key).isnumeric() and int(player_key) not in player_game_over:
@@ -406,11 +413,13 @@ def control_run_game():
 
             show_game_over_winner(winner_dict)
             winner_dict_info[str(player_key)] = winner_dict
-
             game_over_by_player_winner += 1
 
+            make_sound(frequency=120)
+            time.sleep(convert_minutes_to_second(0.1))
 
-        if not game_over:   # and round == ROUNDS:
+
+        if not game_over:   # and round_ == ROUNDS:
 
             if len(all_player_info) > 1:
                 all_player_info = one_winner_per_simulation(all_player_info)
@@ -462,10 +471,10 @@ def control_run_game():
 
     mean_round_per_simulation = round(sum(round_by_simulation)/SIMULATIONS, 2)
 
+    winner_bahavior = define_player_behavior(real_winner_bahavior)
+
     build_line('#', 100)
-    print(f'\t\t GAME OVER')
-    print('\n\t\t FINAL RESULTS')
-    build_line('-', 60)
+    show_info(type_='show_results')
 
     print(f'\n\tPARTIDAS POR TIME OUT: {game_over_by_time_out}')            # 1
     print(f'\n\tMÉDIA DE RODADAS POR PARTIDA: {mean_round_per_simulation}') # 2
@@ -473,9 +482,7 @@ def control_run_game():
     print(f'\n\t% DE VITORIAS DO EXIGENTE: {percentual_wins_demanding}')    # 3
     print(f'\n\t% DE VITORIAS DO CAUTELOSO: {percentual_wins_cautious}')    # 3
     print(f'\n\t% DE VITORIAS DO ALEATÓRIO: {percentual_wins_random}')      # 3
-
-    winner_bahavior = define_player_behavior(real_winner_bahavior)
-    print(f'\n\tCOMPORTAMENTO MAIS VENCEDOR: [ {winner_bahavior} ]')           # 4
+    print(f'\n\tCOMPORTAMENTO MAIS VENCEDOR: [ {winner_bahavior} ]')        # 4
 
     build_line('#', 100)
 
@@ -518,13 +525,14 @@ if __name__ == '__main__':
         total_minutes =  str(total_run_time).split('.')[0]
         total_seconds =  str(total_run_time).split('.')[1]
 
+        # you can call make_response(...) here
         # make_response(
         #     total_minutes=total_minutes,
-        #     total_seconds=total_seconds,
-        #     source_data=user_action
+        #     total_seconds=total_seconds, source_data='run game'
         # )
+
+        SATART_TIME = 0
+        END_TIME = 0
 
         make_sound()
         time.sleep(convert_minutes_to_second(SLEEP_TIME_ZERO))
-        SATART_TIME = 0
-        END_TIME = 0

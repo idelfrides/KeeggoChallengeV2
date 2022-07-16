@@ -14,9 +14,9 @@ from  IJGeneralUsagePackage.ijfunctions import (
 
 from random import randint
 from hold_constants_paths import (
+    BOARD_LENGHT,
     MAX_LIMIT,
-    SELL_VALUE,
-    RENT_VALUE
+    PROPERTIES_NAME,
 )
 
 # ------------------------------------------------------------------
@@ -26,19 +26,25 @@ from hold_constants_paths import (
 
 class PalyerManager(object):
 
-    def __init__(self, player, money=300):
+    def __init__(self, player, money, rent_value):
         self.player = self.define_player(player)
-        self.money = money
         self.position = self.get_player_position()
+        self.money = money
+        self.rent_value = rent_value
 
 
     def get_land_property(self):
         land_property = {}
         land_property['name'] = 'Keeggo'
         land_property['owner'] = self.player
-        land_property['sell_value'] =  SELL_VALUE
-        land_property['rent_value'] = RENT_VALUE
-        land_property['position'] = randint(1, 20)  # wil be updated
+        land_property['rent_value'] = self.rent_value
+        land_property['sell_value'] = self.rent_value * 2
+
+        # you can use this operation mode define rent and sell properties value
+        # land_property['sell_value'] = randint(RENT_VALUE, SELL_VALUE)
+        # land_property['rent_value'] = randint(10, RENT_VALUE)
+
+        land_property['position'] = randint(1, BOARD_LENGHT)  # wil be updated
 
         return  land_property
 
@@ -93,7 +99,7 @@ class PalyerManager(object):
 
         property_dict = self.get_land_property()
 
-        property_dict['name'] = 'RUSSIA'
+        property_dict['name'] = PROPERTIES_NAME['impulsive_land_name']
         property_dict['position'] = self.position
 
         try:
@@ -119,7 +125,6 @@ class PalyerManager(object):
 
         property_dict = self.get_land_property()
 
-
         try:
             player_info = all_player_info[str(player_number)]
         except Exception as err:
@@ -127,7 +132,7 @@ class PalyerManager(object):
 
         if property_dict['rent_value'] > 50:
 
-            property_dict['name'] = 'UK'
+            property_dict['name'] = PROPERTIES_NAME['demanding_land_name']
             property_dict['position'] = self.position
 
             old_balance = player_info['balance']
@@ -153,7 +158,7 @@ class PalyerManager(object):
         new_balance = self.money - property_dict['sell_value']
 
         if new_balance == 80:
-            property_dict['name'] = 'USA'
+            property_dict['name'] = PROPERTIES_NAME['cautious_land_name']
             property_dict['position'] = self.position
 
             player_info = self.get_player_info()
@@ -175,17 +180,17 @@ class PalyerManager(object):
     def buy_land_property_random_player(self, player_number, all_player_info):
         print_log(f'RANDOM PLAYER BUYS A PROPERTY HE LANDS ON WITH A 50% OF PROBABILITY')
 
-        buy = randint(1, MAX_LIMIT)
+        buy_probability = randint(1, MAX_LIMIT)
 
         try:
             player_info = all_player_info[str(player_number)]
         except Exception as err:
             player_info = self.get_player_info()
 
-        if buy == 50:      # 50%
+        if buy_probability == 50:      # 50%
             property_dict = self.get_land_property()
 
-            property_dict['name'] = 'VENEZUELA'
+            property_dict['name'] = PROPERTIES_NAME['random_land_name']
             property_dict['position'] = self.position
 
             old_balance = player_info['balance']
@@ -208,8 +213,7 @@ class PalyerManager(object):
 
         other_player_property = property_board_list[self.position-1]
 
-        owner_id_list = other_player_property.keys()
-        owner_id_list = list(owner_id_list)
+        owner_id_list = list(other_player_property.keys())
         owner_id = owner_id_list[0]
 
         try:
@@ -217,23 +221,17 @@ class PalyerManager(object):
         except Exception as err:
             player_info = self.get_player_info()
 
-        balance = player_info['balance']
+        current_player_balance = player_info['balance']
 
         # pay for property
-        rent_value = (
+        property_rent_value = (
             other_player_property[owner_id]['current_property']['rent_value']
         )
 
-        pay = balance - rent_value
-
-        other_player_property[owner_id]['current_property']['rent_value'] += (
-            rent_value
-        )
+        pay = current_player_balance - property_rent_value
 
         player_info['balance'] = pay
 
-        print(other_player_property)
-        print(all_player_info)
 
         return player_info, other_player_property
 
@@ -276,14 +274,19 @@ def one_winner_per_simulation(all_player_info_dict):
 def show_game_over_winner(winner_player):
 
     info = """
-    -----------------------------------------------------------
-                THE GAME IS OVER
-                WE GOT A PLAYER WINNER
-                WINNER [ {} ] | NUMBER: {}
-                BALANCE : {}
-    -----------------------------------------------------------
+    #############################################################
+    #                                                           #
+    #               THE GAME IS OVER                            #
+    #               WE GOT A PLAYER WINNER                      #
+    #               WINNER [ {} ] | NUMBER: {}        #
+    #               BALANCE :  {}                             #
+    #                                                           #
+    #               AN OTHER MATCH WILL BEGIN ...               #
+    #                                                           #
+    #############################################################
     """.format(
-        winner_player['name'], str(winner_player['code_']), winner_player['balance']
+        winner_player['name'],
+        str(winner_player['code_']), winner_player['balance']
     )
 
     print(info)
@@ -347,7 +350,10 @@ def calculate_tiebraeker(player_dict_tiebraeker_list):
     for one_simulation_info in player_dict_tiebraeker_list:
 
         for balance, winner_info in one_simulation_info.items():
-            balance = int(balance)
+            try:
+                balance = int(balance)
+            except Exception as error:
+                continue
 
             if balance in seen_balance:
 
@@ -365,10 +371,15 @@ def calculate_tiebraeker(player_dict_tiebraeker_list):
                 real_winner_info_list.append(real_winner_info)
 
             else:
-                balance_round_older[str(balance)] = [
-                    winner_info['round_'], winner_info['code_']]
+                try:
+                    balance_round_older[str(balance)] = [
+                        winner_info['round_'], winner_info['code_']
+                    ]
+                except Exception as error:
+                    pass
 
                 seen_balance.add(balance)
+
 
     return real_winner_info_list
 
@@ -378,13 +389,15 @@ def calculate_winner(hold_info_per_simulation_list):
     greatest_balance = 0
     balance = 0
     winner_behavior_list = []
-    winner_dict= {}
     balance_dict = {}
     graetest_balance_dict = {}
 
     for one_player_info in hold_info_per_simulation_list:
 
         for id_player, info in dict(one_player_info).items():
+
+            if not id_player:
+                continue
 
             greatest_balance = info['balance']
 
@@ -396,7 +409,7 @@ def calculate_winner(hold_info_per_simulation_list):
                 balance_dict[str(balance)] = graetest_balance_dict.get(str(balance))
 
                 try:
-                    id_player =  balance_dict[str(balance)].get('code_')
+                    id_player =  balance_dict[str(balance)].get('code_', id_player)
                 except Exception as error:
                     pass
 
@@ -427,30 +440,40 @@ def calculate_winner(hold_info_per_simulation_list):
                         id_player = info['code_']
 
                     except Exception as error:
-                        pass
+                        info['code_'] = int(id_player)
+                        graetest_balance_dict[str(greatest_balance)] = info
 
                 winner_player_number = int(id_player)
 
             else:
                 pass
 
+
         winner_behavior_list.append(winner_player_number)
 
-    count_1 = winner_behavior_list.count(1)
-    count_2 = winner_behavior_list.count(2)
-    count_3 = winner_behavior_list.count(3)
-    count_4 = winner_behavior_list.count(4)
+    count_impulsive = winner_behavior_list.count(1)  # impulsive
+    count_demanding = winner_behavior_list.count(2)  # demanding
+    count_coutious = winner_behavior_list.count(3)   # coutious
+    count_random = winner_behavior_list.count(4)     # random
 
-    winner_dict[str(count_1)] = 1
-    winner_dict[str(count_2)] = 2
-    winner_dict[str(count_3)] = 3
-    winner_dict[str(count_4)] = 4
+    winner_dict = {
+        str(count_impulsive): 1,
+        str(count_demanding): 2,
+        str(count_coutious): 3,
+        str(count_random): 4
+    }
 
-    winner_behavior_counter = [count_1, count_2, count_3, count_4]
+    winner_behavior_counter = [
+        count_impulsive, count_demanding,
+        count_coutious, count_random
+    ]
+
     winner_behavior_list.clear()
-    winner_behavior_list = [count_1, count_2, count_3, count_4]
+
+    winner_behavior_list = winner_behavior_counter.copy()
 
     winner_behavior_counter.sort(reverse=True)
+
     most_winner = winner_behavior_counter[0]
 
     winner_by_bahavior = winner_dict[str(most_winner)]

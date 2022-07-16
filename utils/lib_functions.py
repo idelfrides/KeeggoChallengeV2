@@ -15,6 +15,15 @@ from IJGeneralUsagePackage.ijfunctions import (
 
 def show_info(**kwarg):
 
+    if kwarg['type_'] == 'show_results':
+        info = f"""
+                            GAME IS OVER
+
+                            FINAL RESULTS
+
+        ----------------------------------------------------------
+        """
+
     if kwarg['type_'] == 'round':
 
         info = f"""
