@@ -3,7 +3,7 @@ from random import randint
 
 # -----------------------------------------------------------------
 
-SIMULATIONS = 300    # 300
+SIMULATIONS = 300     # 300
 ROUNDS = 1000         # 1000
 
 MAX_LIMIT = 100

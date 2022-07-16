@@ -35,7 +35,7 @@ If you are using fish, write
 
      https://github.com/idelfrides/IJGeneralUsagePackage
 
-### 6 | After you read that repro and set up your workspace, take a look to file 'hold_constants_paths.py' and make some changes if you want.
+### 6 | After you read that the README of repro and set up your workspace, take a look to file 'hold_constants_paths.py' and make some changes if you want.
 
      Access file  'hold_constants_paths.py'
 

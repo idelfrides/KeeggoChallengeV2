@@ -49,11 +49,6 @@ class PalyerManager(object):
         return  land_property
 
 
-    def start_game_money(self):
-        saldo = 300
-        return saldo
-
-
     def get_player_position(self):
         to_walk = randint(1, 6)
         return to_walk

@@ -36,8 +36,6 @@ from game_manager.lib_manager import (
 
 def run_game(**kwargs):
 
-    # player_number = 1
-
     round_ = kwargs['round_']
     simulation_ = kwargs['simulation_']
     player_number = kwargs['player_number']
@@ -351,9 +349,6 @@ def control_run_game():
         player_number = define_player_number()
 
         RENT_VALUE = randint(20, DEFAULT_BALANCE/2)
-
-        # holder_obj = HoldSomeThing(some_obj=RENT_VALUE)
-        # holder_obj.set_some_sent(RENT_VALUE)
 
         game_over_by_time_out = 0
         game_over_by_player_winner = 0
