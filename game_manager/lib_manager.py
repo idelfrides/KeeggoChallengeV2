@@ -224,11 +224,26 @@ class PalyerManager(object):
         )
 
         pay = current_player_balance - property_rent_value
-
         player_info['balance'] = pay
 
+        # update player balance after made a rent of his property to
+        # current player
+        other_player_property[owner_id]['balance'] += (
+            property_rent_value
+        )
 
         return player_info, other_player_property
+
+
+    def get_owner(self, property_board_list):
+        other_player_property = property_board_list[self.position-1]
+
+        owner_id_list = list(dict(other_player_property).keys())
+        owner_id = owner_id_list[0]
+
+        player_name = self.define_player(player_numer=owner_id)
+
+        return player_name
 
 
 def update_board(property_board_list, player_game_over):

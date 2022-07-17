@@ -74,7 +74,6 @@ def run_game(**kwargs):
     except Exception as excep:
         current_position = 1
 
-
     game_info = """
     ---------------------------------------------------------------------
         [ {} ]  MUST WALK [ {} ] POSITION(S) ON THE BOARD
@@ -100,10 +99,13 @@ def run_game(**kwargs):
                     f'{player.player} GETS HIS END POSITION [ {walk_} ]...'
                 )
 
+                property_content =  property_board_list[player.position-1]
+
                 # find player profile to verify what he going to do
                 if player_number == 1:  # implulsive player
 
-                    if property_board_list[player.position-1] == 'SEM-DONO':
+                    if property_content == 'SEM-DONO':
+
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
                         player_info, player_board_content = player.buy_land_property_inpulsive_player(
@@ -122,8 +124,12 @@ def run_game(**kwargs):
                             )
 
                     # property belong to other plyer
-                    elif not property_board_list[player.position-1].get(str(player_number)):
-                        print_log(f'PROPERTY IN POSITION [ {player.position} ] HAS AN OWNER')
+                    elif not dict(property_content).get(str(player_number)):
+
+                        owner = player.get_owner(
+                            property_board_list=property_board_list
+                        )
+                        print_log(f'THE PROPERTY IN POSITION [ {player.position} ] BELONGS TO [ {owner} ]')
 
                         player_info, other_player_property = (
                             player.pay_rent_for_property(
@@ -132,14 +138,15 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
+                        property_board_list[player.position-1] = (
+                            other_player_property
+                        )
+
                         if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
-                            # on the game
-                            property_board_list[player.position-1] = (
-                                other_player_property
-                            )
+                            pass
 
                     else:
                         # property belong to this player
@@ -147,7 +154,8 @@ def run_game(**kwargs):
 
                 if player_number == 2:  # demanding  player
 
-                    if property_board_list[player.position-1] == 'SEM-DONO':
+                    if property_content == 'SEM-DONO':
+
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
                         player_info, player_board_content = player.buy_land_property_demanding_player(
@@ -169,8 +177,12 @@ def run_game(**kwargs):
                             )
 
                     # property belong to other plyer
-                    elif not property_board_list[player.position-1].get(str(player_number)):
-                        print_log(f'PROPERTY IN POSITION [ {player.position} ] HAS AN OWNER')
+                    elif not dict(property_content).get(str(player_number)):
+
+                        owner = player.get_owner(
+                            property_board_list=property_board_list
+                        )
+                        print_log(f'THE PROPERTY IN POSITION [ {player.position} ] BELONGS TO [ {owner} ]')
 
                         player_info, other_player_property = (
                             player.pay_rent_for_property(
@@ -179,21 +191,23 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
+                        property_board_list[player.position-1] = (
+                            other_player_property
+                        )
+
                         if player_info['balance'] < 0: # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
-                            # on the game
-                            property_board_list[player.position-1] = (
-                                other_player_property
-                            )
+                            pass
+
                     else:
                         # property belong to this player
                         pass
 
                 if player_number == 3:  # cautious one
 
-                    if property_board_list[player.position-1] == 'SEM-DONO':
+                    if property_content == 'SEM-DONO':
 
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
@@ -218,9 +232,12 @@ def run_game(**kwargs):
                             )
 
                     # property belong to other plyer
-                    elif not property_board_list[player.position-1].get(str(player_number)):
+                    elif not dict(property_content).get(str(player_number)):
 
-                        print_log(f'PROPERTY IN POSITION [ {player.position} ] HAS AN OWNER')
+                        owner = player.get_owner(
+                            property_board_list=property_board_list
+                        )
+                        print_log(f'THE PROPERTY IN POSITION [ {player.position} ] BELONGS TO [ {owner} ]')
 
                         player_info, other_player_property = (
                             player.pay_rent_for_property(
@@ -229,20 +246,23 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
+                        # update board of properties
+                        property_board_list[player.position-1] = (
+                            other_player_property
+                        )
+
                         if player_info['balance'] < 0: # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
-                            # on the game
-                            property_board_list[player.position-1] = (
-                                other_player_property
-                            )
+                            pass
 
                     else:
                         pass
 
                 if player_number == 4:  # random one
-                    if property_board_list[player.position-1] == 'SEM-DONO':
+
+                    if property_content == 'SEM-DONO':
 
                         print_log(f'PROPERTY IN POSITION [ {player.position} ] IS AVAILABLE TO BUY')
 
@@ -264,8 +284,12 @@ def run_game(**kwargs):
                             )
 
                     # property belong to other player
-                    elif not property_board_list[player.position-1].get(str(player_number)):
-                        print_log(f'PROPERTY IN POSITION [ {player.position} ] HAS AN OWNER')
+                    elif not dict(property_content).get(str(player_number)):
+
+                        owner = player.get_owner(
+                            property_board_list=property_board_list
+                        )
+                        print_log(f'THE PROPERTY IN POSITION [ {player.position} ] BELONGS TO [ {owner} ]')
 
                         player_info, other_player_property = (
                             player.pay_rent_for_property(
@@ -274,14 +298,15 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
+                        property_board_list[player.position-1] = (
+                            other_player_property
+                        )
+
                         if player_info['balance'] < 0:  # game over
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else:
-                            # on the game
-                            property_board_list[player.position-1] = (
-                                other_player_property
-                            )
+                            pass
                     else:
                         pass
                 else:   # END if player_number == 4:  # random one
@@ -344,15 +369,15 @@ def control_run_game():
         winner_dict_info = {}
         winner_dict = {}
 
+        game_over_by_time_out = 0
+        game_over_by_player_winner = 0
+        game_over = False
+
         property_board_list = ['SEM-DONO' for v in range(BOARD_LENGHT)]
 
         player_number = define_player_number()
 
         RENT_VALUE = randint(20, DEFAULT_BALANCE/2)
-
-        game_over_by_time_out = 0
-        game_over_by_player_winner = 0
-        game_over = False
 
         for round_ in range(1, ROUNDS + 1):
 
@@ -380,6 +405,7 @@ def control_run_game():
             player_key = list(all_player_info.keys())
 
             if len(player_game_over) == 3 and player_key:
+
                 player_key = player_key[0]
 
                 if str(player_key).isnumeric() and int(player_key) not in player_game_over:
@@ -410,9 +436,8 @@ def control_run_game():
             winner_dict_info[str(player_key)] = winner_dict
             game_over_by_player_winner += 1
 
-            make_sound(frequency=120)
-            time.sleep(convert_minutes_to_second(0.1))
-
+            # make_sound(frequency=120)
+            # time.sleep(convert_minutes_to_second(0.1))
 
         if not game_over:   # and round_ == ROUNDS:
 

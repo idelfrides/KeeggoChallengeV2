@@ -14,6 +14,7 @@ DEFAULT_BALANCE = 300
 # RENT_VALUE = randint(20, MAX_LIMIT)  # or use random mode
 # SELL_VALUE = RENT_VALUE * 2
 
+
 PROPERTIES_NAME = {
     "impulsive_land_name": "RUSSIA",
     "demanding_land_name": "UK",
