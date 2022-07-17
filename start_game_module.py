@@ -384,7 +384,6 @@ def control_run_game(user_choice):
 
         if user_choice == 'propriedades com diferentes valores':
             RENT_VALUE = set_value_each_property()
-            # import pdb; pdb.set_trace()
 
         if user_action == 'REMOVE OPTIONS':
             return
@@ -426,8 +425,6 @@ def control_run_game(user_choice):
             property_board_list = update_board(
                 property_board_list=property_board_list, player_game_over=player_game_over
             )
-
-            time.sleep(convert_minutes_to_second(SLEEP_TIME_ZERO))
 
             player_number += 1   # next player = NEXT ROUND
 
@@ -557,7 +554,6 @@ if __name__ == '__main__':
         total_minutes =  str(total_run_time).split('.')[0]
         total_seconds =  str(total_run_time).split('.')[1]
 
-        # you can call make_response(...) here
         make_response(
             total_minutes=total_minutes,
             total_seconds=total_seconds,

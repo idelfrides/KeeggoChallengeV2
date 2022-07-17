@@ -10,11 +10,6 @@ MAX_LIMIT = 100
 BOARD_LENGHT = 20
 DEFAULT_BALANCE = 300
 
-# RENT_VALUE =  70     # randint(20, MAX_LIMIT)  # or use random mode
-# RENT_VALUE = randint(20, MAX_LIMIT)  # or use random mode
-# SELL_VALUE = RENT_VALUE * 2
-
-
 PROPERTIES_NAME = {
     "impulsive_land_name": "RUSSIA",
     "demanding_land_name": "UK",

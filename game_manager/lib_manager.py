@@ -5,7 +5,6 @@
 # importing modules
 # ---------------------------------------
 
-from os import EX_CANTCREAT
 from  IJGeneralUsagePackage.ijfunctions import (
     print_log
 )
@@ -118,6 +117,7 @@ class PalyerManager(object):
 
 
     def buy_land_property_demanding_player(self, player_number, all_player_info):
+
         print_log(f'DEMANDING PALYER BUYS ANY PROPERTY AS LONG AS ITS RENT IS GREATER THAN 50.')
 
         property_dict = self.get_land_property()
@@ -149,6 +149,7 @@ class PalyerManager(object):
 
 
     def buy_land_property_cautious_player(self, player_number):
+
         print_log(f'CAUTIOUS PLAYER BUYS ANY PROPERTY AS LONG AS HE HAS A \n   RESERVE OF 80 BALANCE LEFT AFTER THE PURCHASE IS MADE.')
 
         property_dict = self.get_land_property()
@@ -166,7 +167,6 @@ class PalyerManager(object):
             player_full_content = {
                 str(player_number): player_info
             }
-
         else:
             player_info = self.get_player_info()
             player_full_content = 0
@@ -228,7 +228,7 @@ class PalyerManager(object):
         pay = current_player_balance - property_rent_value
         player_info['balance'] = pay
 
-        # update player balance after made a rent of his property to
+        # update curretn property owner balance after made a rent of his property to
         # current player
         other_player_property[owner_id]['balance'] += (
             property_rent_value
@@ -391,7 +391,6 @@ def calculate_tiebraeker(player_dict_tiebraeker_list):
                     pass
 
                 seen_balance.add(balance)
-
 
     return real_winner_info_list
 
