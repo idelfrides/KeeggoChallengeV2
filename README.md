@@ -1,10 +1,13 @@
 # Keeggo Challenge Project V2
 
 This is the thecnical challenge for join Keeggo company as Python Developer.
+This solution has two ways. The best way is se a second one ( option 2 at Menu of choices ).
+It's  faster and make sense better to this challenge.
 
 To see complete description of this tecnical challenge, acccess link bellow
 
 [SEE FULL DESCRIPTION HERE](https://github.com/idelfrides/KeeggoChallengeV2/wiki)
+
 
 ## STEPS TO RUN THIS  GAME LOCALY
 
