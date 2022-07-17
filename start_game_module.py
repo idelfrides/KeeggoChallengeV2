@@ -26,6 +26,7 @@ from game_manager.lib_manager import (
     define_player_behavior,
     one_winner_per_simulation,
     prepare_calculate_winner,
+    set_value_each_property,
     show_game_over_winner,
     update_board
 )
@@ -99,7 +100,8 @@ def run_game(**kwargs):
                     f'{player.player} GETS HIS END POSITION [ {walk_} ]...'
                 )
 
-                property_content =  property_board_list[player.position-1]
+                board_position = player.position - 1
+                property_content = property_board_list[board_position]
 
                 # find player profile to verify what he going to do
                 if player_number == 1:  # implulsive player
@@ -119,7 +121,7 @@ def run_game(**kwargs):
                             all_player_info.pop(str(player_number))
                         else:
                             # keep on the game
-                            property_board_list[player.position-1] = (
+                            property_board_list[board_position] = (
                                 player_board_content
                             )
 
@@ -138,7 +140,7 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
-                        property_board_list[player.position-1] = (
+                        property_board_list[board_position] = (
                             other_player_property
                         )
 
@@ -172,7 +174,7 @@ def run_game(**kwargs):
                             all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            property_board_list[player.position-1] = (
+                            property_board_list[board_position] = (
                                 player_board_content
                             )
 
@@ -191,7 +193,7 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
-                        property_board_list[player.position-1] = (
+                        property_board_list[board_position] = (
                             other_player_property
                         )
 
@@ -227,7 +229,7 @@ def run_game(**kwargs):
                             all_player_info.pop(str(player_number))
                         else:
                             # on the game
-                            property_board_list[player.position-1] = (
+                            property_board_list[board_position] = (
                                 player_board_content
                             )
 
@@ -247,7 +249,7 @@ def run_game(**kwargs):
                         all_player_info[str(player_number)] = player_info
 
                         # update board of properties
-                        property_board_list[player.position-1] = (
+                        property_board_list[board_position] = (
                             other_player_property
                         )
 
@@ -279,7 +281,7 @@ def run_game(**kwargs):
                             player_game_over.append(player_number)
                             all_player_info.pop(str(player_number))
                         else: # still on the game
-                            property_board_list[player.position-1] = (
+                            property_board_list[board_position] = (
                                 player_board_content
                             )
 
@@ -298,7 +300,7 @@ def run_game(**kwargs):
 
                         all_player_info[str(player_number)] = player_info
 
-                        property_board_list[player.position-1] = (
+                        property_board_list[board_position] = (
                             other_player_property
                         )
 
@@ -349,7 +351,7 @@ def run_game(**kwargs):
     return
 
 
-def control_run_game():
+def control_run_game(user_choice):
 
     build_line('*', 100)
     print(f'\n\t\t\t\t THE GAME IS RUNNING ...\n.')
@@ -377,7 +379,16 @@ def control_run_game():
 
         player_number = define_player_number()
 
-        RENT_VALUE = randint(20, DEFAULT_BALANCE/2)
+        if user_choice == 'propriedades com os mesmos valores':
+            RENT_VALUE = randint(10, 100)
+
+        if user_choice == 'propriedades com diferentes valores':
+            RENT_VALUE = set_value_each_property()
+            # import pdb; pdb.set_trace()
+
+        if user_action == 'REMOVE OPTIONS':
+            return
+
 
         for round_ in range(1, ROUNDS + 1):
 
@@ -512,7 +523,8 @@ def control_run_game():
 if __name__ == '__main__':
 
     menu_options = {
-        1: 'run game'
+        1: 'propriedades com os mesmos valores',
+        2: 'propriedades com diferentes valores',
     }
 
     while True:
@@ -535,7 +547,7 @@ if __name__ == '__main__':
 
         user_action = menu_options.get(menu_response, 'REMOVE OPTIONS')
 
-        control_run_game()
+        control_run_game(user_choice=user_action)
 
         END_TIME = time.time()
 
@@ -546,10 +558,12 @@ if __name__ == '__main__':
         total_seconds =  str(total_run_time).split('.')[1]
 
         # you can call make_response(...) here
-        # make_response(
-        #     total_minutes=total_minutes,
-        #     total_seconds=total_seconds, source_data='run game'
-        # )
+        make_response(
+            total_minutes=total_minutes,
+            total_seconds=total_seconds,
+            user_key='user choice',
+            user_key_value=user_action
+        )
 
         SATART_TIME = 0
         END_TIME = 0

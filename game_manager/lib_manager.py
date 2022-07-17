@@ -1,13 +1,11 @@
 
-
 # rent_value = valor de aluguel
-
 
 # ---------------------------------------
 # importing modules
 # ---------------------------------------
 
-
+from os import EX_CANTCREAT
 from  IJGeneralUsagePackage.ijfunctions import (
     print_log
 )
@@ -18,6 +16,7 @@ from hold_constants_paths import (
     MAX_LIMIT,
     PROPERTIES_NAME,
 )
+
 
 # ------------------------------------------------------------------
 #                     CLASS BEGIN HERE
@@ -37,14 +36,17 @@ class PalyerManager(object):
         land_property = {}
         land_property['name'] = 'Keeggo'
         land_property['owner'] = self.player
-        land_property['rent_value'] = self.rent_value
-        land_property['sell_value'] = self.rent_value * 2
 
-        # you can use this operation mode define rent and sell properties value
-        # land_property['sell_value'] = randint(RENT_VALUE, SELL_VALUE)
-        # land_property['rent_value'] = randint(10, RENT_VALUE)
+        land_property['position'] = 'BR' # will be updated
 
-        land_property['position'] = randint(1, BOARD_LENGHT)  # wil be updated
+        try:   # the same values for all properties
+            land_property['sell_value'] = self.rent_value * 2
+            land_property['rent_value'] = self.rent_value
+        except (TypeError, ValueError) :
+            # different values for each property
+            rent_value = self.rent_value[self.position]
+            land_property['rent_value'] = rent_value
+            land_property['sell_value'] = rent_value * 2
 
         return  land_property
 
@@ -507,3 +509,24 @@ def define_player_behavior(player_numer):
     player_dict['4'] = 'JOGADOR ALEATÓRIO'
 
     return player_dict[str(player_numer)]
+
+
+def set_value_each_property():
+
+    property_values_dict = {}
+    seen_rent_value = set()
+
+    property_index = 1
+
+    while property_index <= BOARD_LENGHT:
+
+        rent_value = randint(10, 100)
+
+        if rent_value in seen_rent_value:
+            continue
+        seen_rent_value.add(rent_value)
+
+        property_values_dict[property_index] = rent_value
+        property_index += 1
+
+    return property_values_dict

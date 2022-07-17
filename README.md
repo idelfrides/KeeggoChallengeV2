@@ -37,7 +37,7 @@ If you are using fish, write
 
 ### 5 | You going to need a external lib to make this game works. Access repository bellow
 
-     https://github.com/idelfrides/IJGeneralUsagePackage | or put ('.git' at and of link)
+     https://github.com/idelfrides/IJGeneralUsagePackage
 
 ### 6 | After you read that the README of repro and set up your workspace, take a look to file 'hold_constants_paths.py' and make some changes if you want.
 
