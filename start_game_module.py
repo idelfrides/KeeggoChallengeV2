@@ -436,8 +436,8 @@ def control_run_game():
             winner_dict_info[str(player_key)] = winner_dict
             game_over_by_player_winner += 1
 
-            # make_sound(frequency=120)
-            # time.sleep(convert_minutes_to_second(0.1))
+            make_sound(frequency=150)
+            time.sleep(convert_minutes_to_second(0.1))
 
         if not game_over:   # and round_ == ROUNDS:
 
