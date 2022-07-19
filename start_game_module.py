@@ -14,7 +14,7 @@ from utils.lib_functions import (
     show_info,
     define_player_number,
 )
-from IJGeneralUsagePackage.ijfunctions import (
+from IJGeneralUsagePackage.IJGeneralLib import (
     build_line,
     convert_minutes_to_second,
     ij_smart_menu,

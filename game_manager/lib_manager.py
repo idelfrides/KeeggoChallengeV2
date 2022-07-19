@@ -5,7 +5,7 @@
 # importing modules
 # ---------------------------------------
 
-from  IJGeneralUsagePackage.ijfunctions import (
+from  IJGeneralUsagePackage.IJGeneralLib import (
     print_log
 )
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from random import randint
 
 
-from IJGeneralUsagePackage.ijfunctions import (
+from IJGeneralUsagePackage.IJGeneralLib import (
     print_log
 )
 
